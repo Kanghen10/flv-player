@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FLV Stream Player</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background-color: black;
+    }
+  </style>
+</head>
+<body>
+  <video id="videoElement" controls muted autoplay></video>
+  <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
+  <script>
+    function getFLVUrlFromHash() {
+      return decodeURIComponent(window.location.hash.slice(1));
+    }
+
+    const url = getFLVUrlFromHash();
+    const video = document.getElementById('videoElement');
+
+    if (flvjs.isSupported() && url) {
+      const flvPlayer = flvjs.createPlayer({
+        type: 'flv',
+        url: url
+      });
+      flvPlayer.attachMediaElement(video);
+      flvPlayer.load();
+      flvPlayer.play().then(() => {
+        requestFullscreen(video);
+      }).catch(console.error);
+    }
+
+    function requestFullscreen(elem) {
+      const request = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.msRequestFullscreen;
+      if (request) request();
+    }
+  </script>
+</body>
+</html>
