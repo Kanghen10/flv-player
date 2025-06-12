@@ -1,18 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FLV Stream Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CCTV Player - FLV via Hash</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: black;
+      background-color: black;
       height: 100%;
       width: 100%;
       overflow: hidden;
     }
+
     video {
       width: 100%;
       height: 100%;
@@ -22,33 +23,35 @@
   </style>
 </head>
 <body>
-  <video id="videoElement" controls muted autoplay></video>
-   <script src="https://cdn.jsdelivr.net/npm/flv.js/dist/flv.min.js"></script>
-<link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet">
-    <script src="https://vjs.zencdn.net/7.15.4/video.js"></script>
+  <video id="videoElement" controls autoplay muted playsinline></video>
+
+  <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
   <script>
-    function getFLVUrlFromHash() {
-      return decodeURIComponent(window.location.hash.slice(1));
+    function getStreamUrlFromHash() {
+      return window.location.hash ? window.location.hash.substring(1) : null;
     }
 
-    const url = getFLVUrlFromHash();
-    const video = document.getElementById('videoElement');
+    const streamUrl = getStreamUrlFromHash();
 
-    if (flvjs.isSupported() && url) {
+    if (!streamUrl) {
+      alert("URL video tidak ditemukan. Gunakan format: index.html#https://domain.com/video.flv");
+    } else if (flvjs.isSupported()) {
+      const videoElement = document.getElementById('videoElement');
       const flvPlayer = flvjs.createPlayer({
         type: 'flv',
-        url: url
+        url: streamUrl
+      }, {
+        enableStashBuffer: false,
+        isLive: true
       });
-      flvPlayer.attachMediaElement(video);
-      flvPlayer.load();
-      flvPlayer.play().then(() => {
-        requestFullscreen(video);
-      }).catch(console.error);
-    }
 
-    function requestFullscreen(elem) {
-      const request = elem.requestFullscreen || elem.webkitRequestFullscreen || elem.msRequestFullscreen;
-      if (request) request();
+      flvPlayer.attachMediaElement(videoElement);
+      flvPlayer.load();
+      flvPlayer.play().catch(err => {
+        console.error("Gagal autoplay:", err);
+      });
+    } else {
+      alert("Browser tidak mendukung flv.js. Gunakan Chrome/Edge terbaru.");
     }
   </script>
 </body>
